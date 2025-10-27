@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mock Bank — Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">MockBank — Admin</div>
+      <div>
+        <button onclick="location.href='index.html'" class="btn secondary">Go to Login</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Add User</h3>
+      <div id="adminMsg"></div>
+      <div class="form-row">
+        <input id="admName" class="input col" placeholder="Full name" />
+        <input id="admUsername" class="input col" placeholder="username (unique)" />
+      </div>
+      <div class="form-row">
+        <input id="admPassword" class="input col" placeholder="password" />
+        <input id="admBalance" class="input col" placeholder="initial balance (0)" />
+      </div>
+      <div class="row">
+        <button id="addUserBtn" class="btn">Add User</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Users</h3>
+      <table class="table" id="usersTable">
+        <thead><tr><th>Name</th><th>Username</th><th>Balance</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="footer">Admin actions change balances and create transaction logs automatically.</div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    ensureSeed(); renderUsers();
+    document.getElementById('addUserBtn').addEventListener('click', ()=>{
+      const name=document.getElementById('admName').value.trim();
+      const username=document.getElementById('admUsername').value.trim();
+      const password=document.getElementById('admPassword').value;
+      const balance=parseFloat(document.getElementById('admBalance').value)||0;
+      const msg=document.getElementById('adminMsg'); msg.textContent='';
+      if(!name||!username||!password){ msg.className='error'; msg.textContent='All fields required'; return; }
+      const r = adminAddUser({name,username,password,balance});
+      if(!r.success){ msg.className='error'; msg.textContent=r.message; }
+      else { msg.className='success'; msg.textContent=r.message; renderUsers(); }
+    });
+
+    function renderUsers(){
+      const tbody=document.querySelector('#usersTable tbody'); tbody.innerHTML='';
+      getAllUsers().forEach(u=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${u.name}</td><td>${u.username}</td><td>$${u.balance.toFixed(2)}</td>
+          <td>
+            <button class="btn secondary" onclick="editBalancePrompt('${u.username}')">Edit</button>
+            <button class="btn danger" onclick="deleteUser('${u.username}')">Delete</button>
+          </td>`;
+        tbody.appendChild(tr);
+      })
+    }
+
+    function editBalancePrompt(username){
+      const val = prompt('Set new balance for '+username);
+      if(val===null) return;
+      const b = parseFloat(val);
+      if(isNaN(b)){ alert('Enter numeric'); return; }
+      adminSetBalance(username,b);
+      renderUsers();
+      alert('Balance updated');
+    }
+    function deleteUser(username){
+      if(!confirm('Delete user '+username+'?')) return;
+      adminDeleteUser(username);
+      renderUsers();
+      alert('Deleted');
+    }
+  </script>
+</body>
+</html>

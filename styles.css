@@ -1,0 +1,54 @@
+/* styles.css - simple modern look */
+:root{
+  --bg:#f6f8fb; --card:#ffffff; --accent:#2563eb; --muted:#6b7280;
+  --danger:#ef4444; --success:#10b981;
+  --pad:18px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:#111827; -webkit-font-smoothing:antialiased;
+}
+.container{
+  max-width:1100px; margin:32px auto; padding:20px;
+}
+.header{
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+}
+.brand{font-weight:700; font-size:20px; color:var(--accent)}
+.card{
+  background:var(--card); border-radius:12px; padding:var(--pad); box-shadow:0 6px 18px rgba(15,23,42,0.06); margin-top:18px;
+}
+.form-row{display:flex; gap:19px; margin-bottom:20px; flex-wrap:wrap}
+.input, .select, .btn, textarea{
+  padding:10px 12px; border-radius:8px; border:1px solid #e6e9ef; font-size:14px;
+}
+.input:focus, textarea:focus{outline:2px solid rgba(37,99,235,0.12); border-color:rgba(37,99,235,0.3)}
+.col{flex:1 1 200px; min-width:160px}
+
+.btn{
+  background:var(--accent); color:white; border:none; cursor:pointer; display:inline-block;
+}
+.btn.secondary{background:#efefef; color:#111; border:1px solid #e6e9ef}
+.btn.danger{background:var(--danger)}
+.small{font-size:13px; color:var(--muted)}
+.row{display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+.balance{
+  font-size:28px; font-weight:700;
+}
+.panel{display:grid; grid-template-columns:1fr 360px; gap:18px}
+@media(max-width:900px){.panel{grid-template-columns:1fr}}
+.table{width:100%; border-collapse:collapse}
+.table th, .table td{padding:10px; text-align:left; border-bottom:1px solid #f2f4f7; font-size:14px}
+.badge{padding:6px 8px;border-radius:999px;font-size:13px}
+.badge.debit{background:#fff1f0;color:var(--danger);border:1px solid #fee2e2}
+.badge.credit{background:#ecfdf5;color:var(--success);border:1px solid #bbf7d0}
+.notice{background:#fff7ed;padding:10px;border-radius:8px;border:1px solid #ffedd5;color:#92400e}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.footer{margin-top:18px; text-align:center; color:var(--muted); font-size:13px}
+.error{color:var(--danger); font-size:13px; margin-top:6px}
+.success{color:var(--success); font-size:13px; margin-top:6px}
+
+
+

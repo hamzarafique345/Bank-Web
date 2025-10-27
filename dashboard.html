@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mock Bank — Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">MockBank</div>
+      <div>
+        <span id="userName" class="small"></span>
+        <button id="logoutBtn" class="btn secondary" style="margin-left:10px">Logout</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div>
+        <div class="card">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div>
+              <div class="small">Account balance</div>
+              <div class="balance" id="balance">$0.00</div>
+            </div>
+            <div>
+              <button id="refreshBtn" class="btn secondary">Refresh</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h3>Transfer Funds</h3>
+          <div id="transferMsg"></div>
+          <div class="form-grid" style="margin-top:8px">
+            <input id="toUser" class="input" placeholder="Recipient username" />
+            <input id="amount" class="input" placeholder="Amount (e.g. 50)" />
+          </div>
+          <div style="margin-top:8px">
+            <textarea id="note" rows="2" class="input" placeholder="Note (optional)"></textarea>
+          </div>
+          <div style="margin-top:10px" class="row">
+            <button id="transferBtn" class="btn">Send</button>
+            <button id="historyBtn" class="btn secondary">Show History</button>
+          </div>
+        </div>
+
+        <div id="historyCard" class="card" style="margin-top:14px; display:none">
+          <h3>Transaction history</h3>
+          <table class="table" id="txTable">
+            <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>With</th><th>Note</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Quick Info</h3>
+          <div class="small">Username</div>
+          <div id="sideUsername" style="font-weight:600; margin-bottom:8px"></div>
+
+          <div class="small">Recent Transactions</div>
+          <div id="recentList" style="margin-top:8px"></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3>Help</h3>
+          <div class="small">Rules</div>
+          <ul class="small">
+            <li>Amount must be positive and not exceed your balance.</li>
+            <li>Recipient username must exist.</li>
+            <li>Transactions are stored locally (localStorage).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">MockBank demo — no real money. Admin available.</div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // dashboard logic
+    ensureSeed();
+    const current = getCurrentUser();
+    if(!current) { alert('Please login'); location.href='index.html'; }
+    document.getElementById('userName').textContent = current.name + ' (' + current.username + ')';
+    document.getElementById('sideUsername').textContent = current.username;
+    renderBalance();
+    renderRecent();
+
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      logout(); location.href='index.html';
+    });
+    document.getElementById('refreshBtn').addEventListener('click', ()=>{ renderBalance(); renderRecent(); });
+
+    document.getElementById('transferBtn').addEventListener('click', ()=>{
+      const to = document.getElementById('toUser').value.trim();
+      const amt = parseFloat(document.getElementById('amount').value);
+      const note = document.getElementById('note').value.trim();
+      const msg = document.getElementById('transferMsg');
+      msg.textContent=''; msg.className='';
+      const r = transferFunds(current.username, to, amt, note);
+      if(!r.success){ msg.className='error'; msg.textContent = r.message; }
+      else { msg.className='success'; msg.textContent=r.message; renderBalance(); renderHistory(); renderRecent(); }
+    });
+
+    document.getElementById('historyBtn').addEventListener('click', ()=>{ 
+      const el = document.getElementById('historyCard'); el.style.display = el.style.display==='none'?'block':'none'; renderHistory(); 
+    });
+
+    function renderBalance(){
+      const u = getUserByUsername(getCurrentUser().username);
+      document.getElementById('balance').textContent = '$' + u.balance.toFixed(2);
+    }
+    function renderRecent(){
+      const recent = getTransactionsForUser(current.username).slice(0,5);
+      const out = document.getElementById('recentList');
+      out.innerHTML = recent.length? recent.map(t=>`<div class="small"><span class="badge ${t.type==='debit'?'debit':'credit'}">${t.type}</span> ${t.date} ${t.amount.toFixed(2)} with ${t.counterparty}</div>`).join('') : '<div class="small">No recent transactions</div>';
+    }
+    function renderHistory(){
+      const rows = getTransactionsForUser(current.username);
+      const tbody = document.querySelector('#txTable tbody'); tbody.innerHTML='';
+      rows.forEach(t=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${t.date}</td><td><span class="badge ${t.type==='debit'?'debit':'credit'}">${t.type}</span></td><td>$${t.amount.toFixed(2)}</td><td>${t.counterparty}</td><td>${t.note||''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>

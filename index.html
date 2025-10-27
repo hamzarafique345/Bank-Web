@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mock Bank — Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container ">
+    <div class="header">
+      <div class="brand">MockBank</div>
+      <div class="small">Simple demo banking system</div>
+    </div>
+<br><br><br><br>
+    <div class="card" style="max-width: 660px; margin: auto;">
+      <h2>Login</h2>
+      <div id="loginMsg" class="small"></div>
+      <div style="margin-top:25px">
+        <div class="form-row">
+          <input id="username" class="input col" placeholder="Username" />
+          <input id="password" type="password" class="input col" placeholder="Password" />
+        </div>
+        <div class="row">
+          <button id="loginBtn" class="btn">Login</button>
+          <button id="openAdmin" class="btn secondary">Open Admin Panel</button>
+        </div>
+        <div class="footer">Use sample accounts: <b>alice</b> (pwd: alice123), <b>bob</b> (pwd: bob123)</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // index-specific
+    document.getElementById('openAdmin').addEventListener('click', ()=> location.href='admin.html');
+    document.getElementById('loginBtn').addEventListener('click', ()=>{
+      const u=document.getElementById('username').value.trim();
+      const p=document.getElementById('password').value;
+      const res = loginUser(u,p);
+      const msg=document.getElementById('loginMsg');
+      if(res.success){ location.href='dashboard.html'; }
+      else { msg.className='error'; msg.textContent=res.message; }
+    });
+
+    // press enter to login
+    [document.getElementById('username'), document.getElementById('password')].forEach(el=>{
+      el.addEventListener('keyup', (e)=>{ if(e.key==='Enter') document.getElementById('loginBtn').click(); })
+    })
+  </script>
+</body>
+</html>
